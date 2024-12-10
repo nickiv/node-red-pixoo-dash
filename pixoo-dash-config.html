@@ -1,0 +1,33 @@
+<script type="text/javascript">
+    RED.nodes.registerType("pixoo-dash-config", {
+        category: "config",
+        defaults: {
+            ip: {
+                value: "192.168.8.1",
+                required: true
+            },
+            debug: {
+                value: false,
+                required: false
+            }
+        },
+        label: function() {
+            return this.ip;
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pixoo-dash-config">
+    <div class="form-row">
+        <label for="node-config-input-ip">IP Address</label>
+        <input type="text" id="node-config-input-ip">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-debug">Debug Logs</label>
+        <input type="checkbox" id="node-config-input-debug" placeholder="" style="display:inline-block; width: auto; vertical-align: top;">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="pixoo-dash-config">
+    <p>TODO</p>
+</script>
