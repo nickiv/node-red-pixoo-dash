@@ -1,5 +1,5 @@
 <script type="text/javascript">
-  RED.nodes.registerType("pixoo-dash-send", {
+  RED.nodes.registerType("pixoo-dash-text", {
     category: "pixoo-dash",
     paletteLabel: "Pixoo Text",
     color: '#FF8C00',
@@ -19,7 +19,7 @@
   });
 </script>
 
-<script type="text/html" data-template-name="pixoo-dash-send">
+<script type="text/html" data-template-name="pixoo-dash-text">
   <div class="form-row">
     <label for="node-input-config">Config</label>
     <input type="text" id="node-input-config">
@@ -42,6 +42,10 @@
   </div>
 </script>
 
-<script type="text/html" data-help-name="pixoo-dash-send">
-  <p>TODO</p>
+<script type="text/html" data-help-name="pixoo-dash-text">
+  <p>This node sets the value of a field on the dashboard to <i>msg.payload</i>.</p>
+  <p>The field is specified by <b>Column</b> and <b>Row</b>. You can override the configured values using <i>msg.col</i> and <i>msg.row</i>.</p>
+  <p>The text color of the field can be overridden with <i>msg.color</i>. In the latter you can also use: "white", "green", "red", "yellow", "cyan" and "orange".</p>
+  <p>The dashboard content is refreshed with each message.</p>
+  <p>In the output message <i>payload</i> will be either <pre>{error_code: 0}</pre> or an error message.</p>
 </script>

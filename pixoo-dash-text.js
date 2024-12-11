@@ -57,5 +57,5 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("pixoo-dash-send", pixooTextNode);
+    RED.nodes.registerType("pixoo-dash-text", pixooTextNode);
 }

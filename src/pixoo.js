@@ -31,10 +31,10 @@ function lerpLocation(xy1, xy2, interpolant) {
 function minimumAmountOfSteps(xy1, xy2) {
     return Math.max(Math.abs(xy1[0] - xy2[0]), Math.abs(xy1[1] - xy2[1]));
 }
-
+/*
 function rgbToHexColor(rgb) {
     return `#${rgb[0].toString(16).padStart(2, '0')}${rgb[1].toString(16).padStart(2, '0')}${rgb[2].toString(16).padStart(2, '0')}`;
-}
+}*/
 
 function roundLocation(xy) {
     return Math.round(xy[0]), Math.round(xy[1]);
@@ -74,9 +74,9 @@ class Pixoo {
         // Retrieve the counter
         this.loadCounter();
         // Resetting if needed
-        if (this.refreshConnectionAutomatically && this.counter > this.refreshCounterLimit) {
-            this.resetCounter();
-        }
+        //if (this.refreshConnectionAutomatically && this.counter > this.refreshCounterLimit) {
+        //    this.resetCounter();
+        //}
     }
 
     clear(rgb = Palette.COLOR_BLACK) {
@@ -172,15 +172,24 @@ class Pixoo {
         this.counter = 10;
     }
 
+    log() {
+        if (this.debug) {
+            console.debug.apply(console, ['[Pixoo]', ...arguments]);
+        }
+    }
+
     resetCounter() {
+
         this.counter = 0;
-        this.buffersSend = 0;
+
         const options = {
             hostname: this.address,
             port: 80,
             path: '/resetCounter',
             method: 'GET',
-        };
+        }
+
+        this.log('resetCounter', options);
 
         const req = http.request(options, (res) => {
             let responseData = '';
@@ -188,61 +197,59 @@ class Pixoo {
                 responseData += chunk;
             });
             res.on('end', () => {
-                if (this.debug) {
-                    console.log('resetCounter response:', responseData);
-                }
+                this.log('resetCounter response:', responseData);
             });
         });
 
         req.on('error', (e) => {
-            console.error(`Problem with resetCounter request: ${e.message}`);
+            console.error(`[Pixoo] Problem with resetCounter: ${e.message}`);
         });
 
         req.end();
     }
-
-    sendText(channel, text, direction = TextScrollDirection.LEFT, speed = 1, rgb = Palette.WHITE, align = 'left') {
-        const data = JSON.stringify({
-            text,
-            channel: channel.value,
-            direction: direction.value,
-            speed,
-            color: rgbToHexColor(rgb),
-            align,
-        });
-
-        const options = {
-            hostname: this.address,
-            port: 80,
-            path: '/post',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': data.length,
-            },
-            timeout: REQTIMEOUT,
-        };
-
-        const req = http.request(options, (res) => {
-            let responseData = '';
-            res.on('data', (chunk) => {
-                responseData += chunk;
+    /*
+        sendText(channel, text, direction = TextScrollDirection.LEFT, speed = 1, rgb = Palette.WHITE, align = 'left') {
+            const data = JSON.stringify({
+                text,
+                channel: channel.value,
+                direction: direction.value,
+                speed,
+                color: rgbToHexColor(rgb),
+                align,
             });
-            res.on('end', () => {
-                if (this.debug) {
-                    console.log('sendText response:', responseData);
-                }
+    
+            const options = {
+                hostname: this.address,
+                port: 80,
+                path: '/post',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': data.length,
+                },
+                timeout: REQTIMEOUT,
+            };
+    
+            const req = http.request(options, (res) => {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+                res.on('end', () => {
+                    if (this.debug) {
+                        console.log('sendText response:', responseData);
+                    }
+                });
             });
-        });
-
-        req.on('error', (e) => {
-            console.error(`Problem with sendText request: ${e.message}`);
-        });
-
-        req.write(data);
-        req.end();
-    }
-
+    
+            req.on('error', (e) => {
+                console.error(`Problem with sendText request: ${e.message}`);
+            });
+    
+            req.write(data);
+            req.end();
+        }
+    */
     resetGifId() {
         const data = JSON.stringify({ "Command": "Draw/ResetHttpGifId" });
 
@@ -258,20 +265,24 @@ class Pixoo {
             timeout: REQTIMEOUT,
         };
 
+        this.log("resetGifId", options, data);
+
         const req = http.request(options, (res) => {
             let responseData = '';
             res.on('data', (chunk) => {
                 responseData += chunk;
             });
             res.on('end', () => {
-                if (this.debug) {
-                    console.log('resetGifId response:', responseData);
-                }
+                this.log('resetGifId response:', responseData);
             });
         });
 
+        req.on('timeout', () => {
+            req.destroy();
+        });
+
         req.on('error', (e) => {
-            console.error(`Problem with resetGifId request: ${e.message}`);
+            console.error(`[Pixoo] Problem with resetGifId: ${e.message}`);
         });
 
         req.write(data);
@@ -282,12 +293,6 @@ class Pixoo {
         return new Promise(async (resolve, reject) => {
             // Add to the internal counter
             this.counter = this.counter + 1;
-
-            // Check if we've passed the limit and reset the counter for the animation remotely
-            if (this.refresh_connection_automatically && this.counter >= this.__refresh_counter_limit) {
-                this.__resetCounter();
-                this.counter = 1;
-            }
 
             // Encode the buffer to base64 encoding
             let payload = {
@@ -324,18 +329,70 @@ class Pixoo {
                     if (responseJson.error_code !== 0) {
                         reject(new Error(`Error code ${responseJson.error_code}`));
                     } else {
-                        this.buffers_send = this.buffers_send + 1;
-                        if (this.debug) {
-                            console.log('Push response:', responseJson);
-                        }
+                        this.log('Push response:', responseJson);
                         resolve(responseJson);
                     }
                 });
             });
 
             req.on('error', (e) => {
-                console.error(`Problem with Push request: ${e.message}`);
+                console.error(`[Pixoo] Problem with Push: ${e.message}`);
                 reject(e);
+            });
+
+            req.on('timeout', () => {
+                req.destroy();
+            });
+
+            req.write(data);
+            req.end();
+        });
+    }
+
+    async setBrightness(newBrightness) {
+        return new Promise(async (resolve, reject) => {
+            let payload = {
+                Command: 'Channel/SetBrightness',
+                Brightness: clamp(newBrightness, 0, 100),
+            }
+
+            const data = JSON.stringify(payload);
+
+            const options = {
+                hostname: this.address,
+                port: 80,
+                path: '/post',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': data.length,
+                },
+                timeout: REQTIMEOUT,
+            };
+
+            const req = http.request(options, (res) => {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+                res.on('end', () => {
+                    const responseJson = JSON.parse(responseData);
+                    if (responseJson.error_code !== 0) {
+                        reject(new Error(`Error code ${responseJson.error_code}`));
+                    } else {
+                        this.log('Push response:', responseJson);
+                        resolve(responseJson);
+                    }
+                });
+            });
+
+            req.on('error', (e) => {
+                console.error(`[Pixoo] Problem with setBrightness: ${e.message}`);
+                reject(e);
+            });
+
+            req.on('timeout', () => {
+                req.destroy();
             });
 
             req.write(data);
@@ -343,5 +400,7 @@ class Pixoo {
         });
     }
 }
+
+
 
 module.exports = Pixoo;

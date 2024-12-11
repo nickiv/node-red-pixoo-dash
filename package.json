@@ -1,13 +1,14 @@
 {
   "name": "@nickiv/node-red-pixoo-dash",
   "version": "0.0.1",
-  "description": "Nodes to display text on Divoom Pixoo64",
+  "description": "Turn your Divoom Pixoo64 into 4 sections text dashboard",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "node-red": {
     "nodes": {
       "pixoo-dash-text": "pixoo-dash-text.js",
+      "pixoo-dash-bright": "pixoo-dash-bright.js",
       "pixoo-dash-config": "pixoo-dash-config.js"
     },
     "version": ">=2.0.0"
@@ -19,7 +20,7 @@
   "license": "MIT",
   "keywords": [
     "node-red",
-    "sms",
+    "dashboard",
     "pixoo",
     "divoom"
   ],

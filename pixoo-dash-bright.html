@@ -1,0 +1,38 @@
+<script type="text/javascript">
+  RED.nodes.registerType("pixoo-dash-bright", {
+    category: "pixoo-dash",
+    paletteLabel: "Pixoo Brightness",
+    color: '#38a85f',
+    icon: "font-awesome/fa-adjust",
+    defaults: {
+      name: { value: "" },
+      brightness: { value: 50, validate: RED.validators.number() },
+      config: { value: "", type: "pixoo-dash-config" }
+    },
+    inputs: 1,
+    outputs: 1,
+    label: function () {
+      return this.name || "Pixoo Brightness";
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="pixoo-dash-bright">
+  <div class="form-row">
+    <label for="node-input-config">Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-brightness">Brightness (0-100)</label>
+    <input type="text" id="node-input-brightness">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name">Name</label>
+    <input type="text" type="text" id="node-input-name">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="pixoo-dash-bright">
+  <p>You can set brightness of your Pixoo. If <i>payload</i> is number, than it will be used as target value.</p>
+  <p>Use 0 to switch display off.</p>
+</script>

@@ -11,19 +11,31 @@ module.exports = function (RED) {
 
     this.drawBg = function(){
       pixoo.drawFilledRectangle([0,0], [63, 63], Palette.COLOR_WHITE);
-      pixoo.drawFilledRectangle([1,1], [30,30], Palette.COLOR_BLACK);
-      pixoo.drawFilledRectangle([32,1], [62,30], Palette.COLOR_BLACK);
-      pixoo.drawFilledRectangle([1,32], [30,62], Palette.COLOR_BLACK);
+      pixoo.drawFilledRectangle([1,1], [31,31], Palette.COLOR_BLACK);
+      pixoo.drawFilledRectangle([32,1], [62,31], Palette.COLOR_BLACK);
+      pixoo.drawFilledRectangle([1,32], [31,62], Palette.COLOR_BLACK);
       pixoo.drawFilledRectangle([32,32], [62,62], Palette.COLOR_BLACK);
-      
     }
 
     this.drawBg();
+    pixoo.push().catch((err)=>{
+      console.error('[Pixoo]', err.message);
+    });
+
+    this.log = function(){
+      if (this.debug){
+        console.debug.apply(console, ['[Pixoo]', ...arguments]);
+      }
+    }
+
+    this.getPixoo = function(){
+      return pixoo;
+    }
 
     var lines = [];
 
     this.drawTextLine = function(line){
-      pixoo.drawText(line.text, [line.col * 31 + 2, line.row*6 + (line.row>4?3:1)], line.color);
+      pixoo.drawText(line.text, [line.col * 31 + 2, line.row*6 + (line.row>4?3:2)], line.color);
     }
 
     function parseColorString(colorString){
@@ -43,9 +55,7 @@ module.exports = function (RED) {
         color: parseColorString(color.toString())
       }
 
-      if (this.debug){
-        console.log('printText', line);
-      }
+      this.log('printText', line);
 
       let newLines = [];
 
@@ -67,10 +77,7 @@ module.exports = function (RED) {
     }
 
     this.on("close", function () {
-      //this.receiveProcessor.handle("node_close");
-      //this.receiveProcessor = null;
-      //this.sendProcessor.handle("node_close");
-      //this.sendProcessor = null;
+
     });
   }
 
