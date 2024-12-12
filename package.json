@@ -9,6 +9,7 @@
     "nodes": {
       "pixoo-dash-text": "pixoo-dash-text.js",
       "pixoo-dash-bright": "pixoo-dash-bright.js",
+      "pixoo-dash-buzz": "pixoo-dash-buzz.js",
       "pixoo-dash-config": "pixoo-dash-config.js"
     },
     "version": ">=2.0.0"

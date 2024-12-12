@@ -177,7 +177,7 @@ class Pixoo {
             console.debug.apply(console, ['[Pixoo]', ...arguments]);
         }
     }
-
+/*
     resetCounter() {
 
         this.counter = 0;
@@ -206,7 +206,7 @@ class Pixoo {
         });
 
         req.end();
-    }
+    }*/
     /*
         sendText(channel, text, direction = TextScrollDirection.LEFT, speed = 1, rgb = Palette.WHITE, align = 'left') {
             const data = JSON.stringify({
@@ -251,62 +251,17 @@ class Pixoo {
         }
     */
     resetGifId() {
-        const data = JSON.stringify({ "Command": "Draw/ResetHttpGifId" });
-
-        const options = {
-            hostname: this.address,
-            port: 80,
-            path: '/post',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': data.length,
-            },
-            timeout: REQTIMEOUT,
-        };
-
-        this.log("resetGifId", options, data);
-
-        const req = http.request(options, (res) => {
-            let responseData = '';
-            res.on('data', (chunk) => {
-                responseData += chunk;
-            });
-            res.on('end', () => {
-                this.log('resetGifId response:', responseData);
-            });
+        this._doPost({ "Command": "Draw/ResetHttpGifId" }).catch((err) => {
+            console.error('[Pixoo]', err.message);
         });
-
-        req.on('timeout', () => {
-            req.destroy();
-        });
-
-        req.on('error', (e) => {
-            console.error(`[Pixoo] Problem with resetGifId: ${e.message}`);
-        });
-
-        req.write(data);
-        req.end();
     }
 
-    async push() {
+    async _doPost(payload) {
+        if (!payload.Command) {
+            throw new Error('Command is missing');
+        }
         return new Promise(async (resolve, reject) => {
-            // Add to the internal counter
-            this.counter = this.counter + 1;
-
-            // Encode the buffer to base64 encoding
-            let payload = {
-                Command: 'Draw/SendHttpGif',
-                PicNum: 1,
-                PicWidth: this.size,
-                PicOffset: 0,
-                PicID: this.counter,
-                PicSpeed: 1000,
-                PicData: Buffer.from(this.buffer.flat()).toString('base64'),
-            }
-
             const data = JSON.stringify(payload);
-
             const options = {
                 hostname: this.address,
                 port: 80,
@@ -329,14 +284,14 @@ class Pixoo {
                     if (responseJson.error_code !== 0) {
                         reject(new Error(`Error code ${responseJson.error_code}`));
                     } else {
-                        this.log('Push response:', responseJson);
+                        this.log(`${payload.Command} response:`, responseJson);
                         resolve(responseJson);
                     }
                 });
             });
 
             req.on('error', (e) => {
-                console.error(`[Pixoo] Problem with Push: ${e.message}`);
+                console.error(`[Pixoo] Problem with ${payload.Command}: ${e.message}`);
                 reject(e);
             });
 
@@ -346,57 +301,37 @@ class Pixoo {
 
             req.write(data);
             req.end();
+        });
+    }
+
+    async push() {
+        this.counter = this.counter + 1;
+
+        // Encode the buffer to base64 encoding
+        return this._doPost({
+            Command: 'Draw/SendHttpGif',
+            PicNum: 1,
+            PicWidth: this.size,
+            PicOffset: 0,
+            PicID: this.counter,
+            PicSpeed: 1000,
+            PicData: Buffer.from(this.buffer.flat()).toString('base64'),
         });
     }
 
     async setBrightness(newBrightness) {
-        return new Promise(async (resolve, reject) => {
-            let payload = {
-                Command: 'Channel/SetBrightness',
-                Brightness: clamp(newBrightness, 0, 100),
-            }
+        return this._doPost({
+            Command: 'Channel/SetBrightness',
+            Brightness: clamp(newBrightness, 0, 100),
+        });
+    }
 
-            const data = JSON.stringify(payload);
-
-            const options = {
-                hostname: this.address,
-                port: 80,
-                path: '/post',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': data.length,
-                },
-                timeout: REQTIMEOUT,
-            };
-
-            const req = http.request(options, (res) => {
-                let responseData = '';
-                res.on('data', (chunk) => {
-                    responseData += chunk;
-                });
-                res.on('end', () => {
-                    const responseJson = JSON.parse(responseData);
-                    if (responseJson.error_code !== 0) {
-                        reject(new Error(`Error code ${responseJson.error_code}`));
-                    } else {
-                        this.log('Push response:', responseJson);
-                        resolve(responseJson);
-                    }
-                });
-            });
-
-            req.on('error', (e) => {
-                console.error(`[Pixoo] Problem with setBrightness: ${e.message}`);
-                reject(e);
-            });
-
-            req.on('timeout', () => {
-                req.destroy();
-            });
-
-            req.write(data);
-            req.end();
+    async soundBuzzer(aTime = 500, iTime = 500, tTime = 3000){
+        return this._doPost({
+            Command: 'Device/PlayBuzzer',
+            ActiveTimeInCycle: aTime,
+            OffTimeInCycle: iTime,
+            PlayTotalTime: tTime,
         });
     }
 }
