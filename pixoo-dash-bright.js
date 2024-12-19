@@ -14,11 +14,14 @@ module.exports = function(RED) {
           if (!isNaN(payloadBrightness)){
             brightness = payloadBrightness;
           }
+          node.status({ fill: "yellow", shape: "ring", text: "Updating..." });
           this.config.getPixoo().setBrightness(brightness).then((resp)=>{
+            node.status({ fill: "green", shape: "dot", text: brightness + "%" });
             msg.payload = resp;
             send(msg);
             done();
           }).catch((err)=>{
+            node.status({ fill: "red", shape: "ring", text: err.toString().substring(0, 30) });
             done(err);
           });
         });
