@@ -43,6 +43,31 @@ module.exports = function (RED) {
           case "white":
             color = "#FFFFFF";
             break;
+          case "blue":
+            color = "#211C84";
+            break;
+          case "purple":
+            color = "#800080";
+            break;
+          case "pink":
+            color = "#FFC0CB";
+            break;
+          case "gray":
+          case "grey":
+            color = "#808080";
+            break;
+          case "brown":
+            color = "#A52A2A";
+            break;
+          case "lime":
+            color = "#00FF00";
+            break;
+          case "navy":
+            color = "#000080";
+            break;
+          case "magenta":
+            color = "#FF00FF";
+            break;
           default:
             color = msg.color;
         }
